@@ -2,11 +2,10 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from numpy import array
 
-w, h = 500, 500
+window_width, window_height = 500, 500
 bufferId = 0
 
 
-# ---Section 1---
 def square_from_buffer():
     glEnableClientState(GL_VERTEX_ARRAY)
     glBindBuffer(GL_ARRAY_BUFFER, bufferId)
@@ -24,9 +23,8 @@ def square():
     glEnd()
 
 
-# Add this function before Section 2 of the code above i.e. the showScreen function
 def iterate():
-    glViewport(0, 0, 500, 500)
+    glViewport(0, 0, window_width, window_height)
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(-2, 2, -2, 2, 0.0, 1.0)
@@ -38,15 +36,13 @@ def iterate():
         print(errorCode)
 
 
-# ---Section 2---
-
 def show_screen():
     glClearColor(0.0, 1.0, 0.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # Remove everything from screen (i.e. displays all white)
-    glLoadIdentity()  # Reset all graphic/shape's position
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glLoadIdentity()
     iterate()
-    glColor3f(1.0, 0.0, 3.0)  # Set the color to pink
-    square_from_buffer()  # Draw a square using our function
+    glColor3f(1.0, 0.0, 3.0)
+    square_from_buffer()
     glutSwapBuffers()
 
 
@@ -59,14 +55,39 @@ def init_app():
     glCullFace(GL_FRONT_AND_BACK)
 
 
-# ---Section 3---
+def mouse_func(button, state, x, y):
+    pass
 
-glutInit()
-glutInitDisplayMode(GLUT_RGBA)  # Set the display mode to be colored
-glutInitWindowSize(500, 500)  # Set the w and h of your window
-glutInitWindowPosition(0, 0)  # Set the position at which this windows should appear
-wind = glutCreateWindow("OpenGL Coding Practice")  # Set a window title
-glutDisplayFunc(show_screen)
-glutIdleFunc(show_screen)  # Keeps the window open
-init_app()
-glutMainLoop()  # Keeps the above created window displaying/running in a loop
+
+def timer(v):
+    glutPostRedisplay()
+    glutTimerFunc(1000 / 60, timer, v)
+
+
+def reshape(width, height):
+    global window_width
+    global window_height
+    window_width = width
+    window_height = height
+
+
+def init_glut():
+    glutInit()
+    glutInitDisplayMode(GLUT_RGBA)
+    glutInitWindowSize(window_width, window_height)
+    glutInitWindowPosition(100, 100)
+    wind = glutCreateWindow("OpenGL Coding Practice")
+    glutDisplayFunc(show_screen)
+    glutMouseFunc(mouse_func)
+    glutTimerFunc(100, timer, 0)
+    glutReshapeFunc(reshape)
+
+
+def main():
+    init_glut()
+    init_app()
+    glutMainLoop()
+
+
+if __name__ == "__main__":
+    main()
