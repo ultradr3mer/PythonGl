@@ -1,3 +1,5 @@
+import math
+
 import pymunk
 from OpenGL.GL import *
 from OpenGL.GLUT import *
@@ -20,10 +22,12 @@ class Drawable:
         physics_instance = game.Game.physics_instance
 
         self.body = pymunk.Body()
+        self.body.mass = 0.001
         self.body.position = 0, 0
 
         self.poly = pymunk.Poly.create_box(self.body, size=(2, 2))
         self.poly.mass = 10
+        self.poly.friction = 0.62
         physics_instance.space.add(self.body, self.poly)
 
     @staticmethod
@@ -38,7 +42,9 @@ class Drawable:
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         pos = self.body.position
-        glTranslate(pos.x, pos.y, 0.0)
+        glTranslatef(pos.x, pos.y, 0.0)
+        rotation = math.degrees(self.body.angle)
+        glRotatef(rotation, 0.0, 0.0, 1.0)
         glColor3f(1.0, 0.0, 3.0)
         Drawable.square_from_buffer()
 

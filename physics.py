@@ -5,11 +5,11 @@ class Physics:
 
     def __init__(self):
         self.space = pymunk.Space()  # Create a Space which contain the simulation
-        self.space.gravity = 0, -981  # Set its gravity
+        self.space.gravity = 0, -98.1  # Set its gravity
 
         # ground
-        ground = pymunk.Segment(self.space.static_body, a=(-100, -5), b=(100, -5), radius=1.0)
-        ground.friction = 1.0
+        ground = pymunk.Segment(self.space.static_body, a=(-20, 0), b=(20, -15), radius=1.0)
+        ground.friction = 0.62
         self.space.add(ground)
 
     def run(self, step_size):

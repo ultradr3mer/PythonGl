@@ -20,7 +20,9 @@ class Game:
         glViewport(0, 0, Game.window_width, Game.window_height)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        glOrtho(-10, 10, -10, 10, 0.0, 1.0)
+
+        aspect = Game.window_width / Game.window_height
+        glOrtho(-10 * aspect, 10 * aspect, -10, 10, 0.0, 1.0)
 
         Game.box.draw()
 
