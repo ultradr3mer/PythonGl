@@ -2,6 +2,7 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from physics import Physics
 from drawable import Drawable
+from game_math import Rectangle
 
 
 class Game:
@@ -10,7 +11,9 @@ class Game:
 
     physics_instance = Physics()
 
-    box = None  # type: Drawable
+    drawables: list[Drawable] = list()
+
+    viewable_area = Rectangle(0, 0, 0, 0)
 
     @staticmethod
     def draw_frame():
@@ -22,9 +25,14 @@ class Game:
         glLoadIdentity()
 
         aspect = Game.window_width / Game.window_height
-        glOrtho(-10 * aspect, 10 * aspect, -10, 10, 0.0, 1.0)
 
-        Game.box.draw()
+        area = Rectangle(-10 * aspect, 10 * aspect, -10, 10)
+        glOrtho(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
+
+        Game.viewable_area = area
+
+        for d in Game.drawables:
+            d.draw()
 
         error_code = glGetError()
         if error_code != 0:
@@ -38,7 +46,12 @@ class Game:
 
     @staticmethod
     def mouse_func(button, state, x, y):
-        pass
+        if button == 0 and state == 0:
+            screen_area = Rectangle(0, Game.window_width, Game.window_height, 0)
+            pos = Game.viewable_area.project(screen_area, (x, y))
+            new_box = Drawable()
+            new_box.position = pos
+            Game.drawables.append(new_box)
 
     @staticmethod
     def reshape(width, height):
@@ -50,7 +63,9 @@ class Game:
         Game.init_glut()
         Game.init_app()
         Game.game_timer()
-        Game.box = Drawable()
+
+        Game.drawables.append(Drawable())
+
         glutMainLoop()
 
     @staticmethod

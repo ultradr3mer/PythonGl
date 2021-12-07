@@ -48,3 +48,12 @@ class Drawable:
         glColor3f(1.0, 0.0, 3.0)
         Drawable.square_from_buffer()
 
+    @property
+    def position(self):
+        return self.body.position
+
+    @position.setter
+    def position(self, value):
+        self.body.position = value
+        pass
+
