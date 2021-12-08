@@ -1,5 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
+
+from box import Box
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
@@ -14,7 +16,6 @@ class Game:
 
     @staticmethod
     def draw_frame():
-        glClearColor(0.0, 1.0, 0.0, 1.0)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
         glViewport(0, 0, Game.window_width, Game.window_height)
@@ -38,15 +39,21 @@ class Game:
     @staticmethod
     def init_app():
         Drawable.init()
+        Box.init()
         Game.physics_instance = Physics()
-        Game.drawables.append(Drawable())
+        Game.drawables.append(Box())
+
+        floor = Drawable()
+        floor.position = (0, -11)
+        floor.size = (7, 2)
+        Game.drawables.append(floor)
 
     @staticmethod
     def mouse_func(button, state, x, y):
         if button == 0 and state == 0:
             screen_area = Rectangle(0, Game.window_width, Game.window_height, 0)
             pos = Game.viewable_area.project(screen_area, (x, y))
-            new_box = Drawable()
+            new_box = Box()
             new_box.position = pos
             Game.drawables.append(new_box)
 
@@ -79,3 +86,9 @@ class Game:
         glutDisplayFunc(Game.draw_frame)
         glutMouseFunc(Game.mouse_func)
         glutReshapeFunc(Game.reshape)
+        glEnable(GL_POLYGON_SMOOTH)
+        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
+        glEnable(GL_BLEND)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE)
+        glMinSampleShading(4)
+        glClearColor(0.0, 0.0, 0.0, 0.0)
