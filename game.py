@@ -6,7 +6,6 @@ from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
 
-
 class Game:
     window_width, window_height = 640, 480
     fps = 60
@@ -90,5 +89,4 @@ class Game:
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_MULTISAMPLE)
-        glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST)
         glClearColor(1.0, 0.5, 0.50, 0.0)
