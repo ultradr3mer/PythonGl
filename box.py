@@ -6,6 +6,7 @@ from OpenGL.GLUT import *
 import numpy as np
 import game
 
+
 class Box:
     verticeBufferId = 0
 
@@ -33,7 +34,7 @@ class Box:
         glEnableClientState(GL_VERTEX_ARRAY)
         glBindBuffer(GL_ARRAY_BUFFER, Box.verticeBufferId)
         glVertexPointer(2, GL_FLOAT, 0, None)
-        glColor4f(1.0, 1.0, 1.0, 1.0)
+        glColor4f(0.8, 0.8, 0.8, 1.0)
         glDrawArrays(GL_QUADS, 0, 4)
 
     def draw(self):
@@ -53,4 +54,3 @@ class Box:
     def position(self, value):
         self.body.position = value
         pass
-

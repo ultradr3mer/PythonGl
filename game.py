@@ -16,9 +16,9 @@ class Game:
 
     @staticmethod
     def draw_frame():
+        glViewport(0, 0, Game.window_width, Game.window_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
-        glViewport(0, 0, Game.window_width, Game.window_height)
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
@@ -38,15 +38,16 @@ class Game:
 
     @staticmethod
     def init_app():
+        floor = Drawable()
+        floor.position = (0.0, -11.0)
+        floor.size = (7, 2)
+        Game.drawables.append(floor)
+
         Drawable.init()
         Box.init()
         Game.physics_instance = Physics()
         Game.drawables.append(Box())
 
-        floor = Drawable()
-        floor.position = (0, -11)
-        floor.size = (7, 2)
-        Game.drawables.append(floor)
 
     @staticmethod
     def mouse_func(button, state, x, y):
@@ -79,7 +80,7 @@ class Game:
     @staticmethod
     def init_glut():
         glutInit()
-        glutInitDisplayMode(GLUT_RGBA)
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE)
         glutInitWindowSize(Game.window_width, Game.window_height)
         glutInitWindowPosition(100, 100)
         glutCreateWindow("OpenGL Coding Practice")
@@ -88,7 +89,6 @@ class Game:
         glutReshapeFunc(Game.reshape)
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE)
-        glMinSampleShading(4)
-        glClearColor(0.0, 0.0, 0.0, 0.0)
+        glEnable(GL_MULTISAMPLE)
+        glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST)
+        glClearColor(1.0, 0.5, 0.50, 0.0)
