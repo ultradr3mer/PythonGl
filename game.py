@@ -8,11 +8,8 @@ from game_math import Rectangle
 class Game:
     window_width, window_height = 640, 480
     fps = 60
-
-    physics_instance = Physics()
-
+    physics_instance: Physics = None
     drawables: list[Drawable] = list()
-
     viewable_area = Rectangle(0, 0, 0, 0)
 
     @staticmethod
@@ -25,10 +22,8 @@ class Game:
         glLoadIdentity()
 
         aspect = Game.window_width / Game.window_height
-
         area = Rectangle(-10 * aspect, 10 * aspect, -10, 10)
         glOrtho(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
-
         Game.viewable_area = area
 
         for d in Game.drawables:
@@ -43,6 +38,8 @@ class Game:
     @staticmethod
     def init_app():
         Drawable.init()
+        Game.physics_instance = Physics()
+        Game.drawables.append(Drawable())
 
     @staticmethod
     def mouse_func(button, state, x, y):
@@ -63,9 +60,6 @@ class Game:
         Game.init_glut()
         Game.init_app()
         Game.game_timer()
-
-        Game.drawables.append(Drawable())
-
         glutMainLoop()
 
     @staticmethod

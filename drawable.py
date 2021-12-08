@@ -3,7 +3,6 @@ import math
 import pymunk
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-from pymunk import Vec2d
 import numpy as np
 import game
 
@@ -35,7 +34,7 @@ class Drawable:
         glEnableClientState(GL_VERTEX_ARRAY)
         glBindBuffer(GL_ARRAY_BUFFER, Drawable.verticeBufferId)
         glVertexPointer(2, GL_FLOAT, 0, None)
-        glColor4f(1.0, 0.0, 0.0, 1.0)
+        glColor4f(1.0, 1.0, 1.0, 1.0)
         glDrawArrays(GL_QUADS, 0, 4)
 
     def draw(self):

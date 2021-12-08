@@ -8,7 +8,7 @@ class Physics:
         self.space.gravity = 0, -98.1  # Set its gravity
 
         # ground
-        ground = pymunk.Segment(self.space.static_body, a=(-20, 0), b=(20, -15), radius=1.0)
+        ground = pymunk.Segment(self.space.static_body, a=(-7, -10), b=(7, -10), radius=1.0)
         ground.friction = 0.62
         self.space.add(ground)
 
