@@ -1,16 +1,18 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 
-from box import Box
+from physics_body import PhysicsBody
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
+
 
 class Game:
     window_width, window_height = 640, 480
     fps = 60
     physics_instance: Physics = None
     drawables: list[Drawable] = list()
+    updatebles = list()
     viewable_area = Rectangle(0, 0, 0, 0)
 
     @staticmethod
@@ -35,37 +37,34 @@ class Game:
 
         glutSwapBuffers()
 
-    @staticmethod
-    def init_app():
+    def init_app(self):
+        Drawable.init()
+
         floor = Drawable()
         floor.position = (0.0, -11.0)
         floor.size = (7, 2)
         Game.drawables.append(floor)
 
-        Drawable.init()
-        Box.init()
         Game.physics_instance = Physics()
-        Game.drawables.append(Box())
-
+        Game.create_new_punisher()
 
     @staticmethod
     def mouse_func(button, state, x, y):
         if button == 0 and state == 0:
             screen_area = Rectangle(0, Game.window_width, Game.window_height, 0)
             pos = Game.viewable_area.project(screen_area, (x, y))
-            new_box = Box()
-            new_box.position = pos
-            Game.drawables.append(new_box)
+            pun = Game.create_new_punisher()
+            pun.body.position = pos
+            Game.drawables.append(pun)
 
     @staticmethod
     def reshape(width, height):
         Game.window_width = width
         Game.window_height = height
 
-    @staticmethod
-    def main():
+    def main(self):
         Game.init_glut()
-        Game.init_app()
+        self.init_app()
         Game.game_timer()
         glutMainLoop()
 
@@ -74,6 +73,10 @@ class Game:
         msecs = round(1000.0 / Game.fps)
         glutPostRedisplay()
         Game.physics_instance.run(msecs / 1000.0)
+
+        for u in Game.updatebles:
+            u.update()
+
         glutTimerFunc(msecs, lambda v: Game.game_timer(), 5)
 
     @staticmethod
@@ -90,3 +93,10 @@ class Game:
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_MULTISAMPLE)
         glClearColor(1.0, 0.5, 0.50, 0.0)
+
+    @staticmethod
+    def create_new_punisher():
+        pun = PhysicsBody("assets/punisher.obj")
+        Game.drawables.append(pun)
+        Game.updatebles.append(pun)
+        return pun

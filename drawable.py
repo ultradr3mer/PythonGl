@@ -4,29 +4,41 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 import numpy as np
 
+from obj_mtl_loader import Obj
+
 
 class Drawable:
-    verticeBufferId = 0
+    boxVerticeBufferId = 0
+    boxFaceBufferId = 0
 
     @staticmethod
     def init():
-        Drawable.verticeBufferId = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, Drawable.verticeBufferId)
+        Drawable.boxVerticeBufferId = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, Drawable.boxVerticeBufferId)
         vertices = np.array([-1, -1, 1, -1, 1, 1, -1, 1], dtype='float32')
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW)
 
-    def __init__(self):
-        self._position = (0, 0, 0)
+    def __init__(self, filename=None):
+        self.position = (0, 0, 0)
         self.size = (1, 1)
         self.angle = 0
         self.color = (0.5, 0.5, 0.5, 1.0)
+        self.verticeBufferId = Drawable.boxVerticeBufferId
+        self.drawMode = GL_QUADS
+        self.facesBufferId = Drawable.boxFaceBufferId
+        self.drawCount = 4
+        self.vertexPointerSize = 2
+        self.obj: Obj = None
+
+        if isinstance(filename, str):
+            self.load_obj(filename)
 
     def square_from_buffer(self):
         glEnableClientState(GL_VERTEX_ARRAY)
-        glBindBuffer(GL_ARRAY_BUFFER, Drawable.verticeBufferId)
-        glVertexPointer(2, GL_FLOAT, 0, None)
+        glBindBuffer(GL_ARRAY_BUFFER, self.verticeBufferId)
+        glVertexPointer(self.vertexPointerSize, GL_FLOAT, 0, None)
         glColor4f(self.color[0], self.color[1], self.color[2], 0.0)
-        glDrawArrays(GL_QUADS, 0, 4)
+        glDrawArrays(self.drawMode, 0, self.drawCount)
 
     def draw(self):
         glMatrixMode(GL_MODELVIEW)
@@ -36,12 +48,16 @@ class Drawable:
         glRotatef(math.degrees(self.angle), 0.0, 0.0, 1.0)
         self.square_from_buffer()
 
-    @property
-    def position(self):
-        return self._position
+    def load_obj(self, filename):
+        self.obj = Obj(filename)
 
-    @position.setter
-    def position(self, value):
-        self._position = value
-        pass
+        self.verticeBufferId = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.verticeBufferId)
+        vertices = np.array(self.obj.get_plain_vertecies(), dtype='float32')
+        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW)
+        self.drawCount = len(vertices)
+
+        self.drawMode = GL_TRIANGLES
+        self.vertexPointerSize = 3
+
 
