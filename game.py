@@ -1,10 +1,13 @@
+import glfw
 from OpenGL.GL import *
 from OpenGL.GLUT import *
+from OpenGL.raw.GLU import gluPerspective
 
 from physics_body import PhysicsBody
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
+import glm
 
 
 class Game:
@@ -19,13 +22,10 @@ class Game:
     def draw_frame():
         glViewport(0, 0, Game.window_width, Game.window_height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glLoadIdentity()
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
 
         aspect = Game.window_width / Game.window_height
         area = Rectangle(-10 * aspect, 10 * aspect, -10, 10)
-        glOrtho(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
+        Game.projection_matrix = glm.orthoLH_ZO(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
         Game.viewable_area = area
 
         for d in Game.drawables:
@@ -35,18 +35,11 @@ class Game:
         if error_code != 0:
             print(error_code)
 
+        glFlush()
+        glFinish()
         glutSwapBuffers()
 
-    def init_app(self):
-        Drawable.init()
-
-        floor = Drawable()
-        floor.position = (0.0, -11.0)
-        floor.size = (7, 2)
-        Game.drawables.append(floor)
-
-        Game.physics_instance = Physics()
-        Game.create_new_punisher()
+        Game.read_error_log()
 
     @staticmethod
     def mouse_func(button, state, x, y):
@@ -64,7 +57,7 @@ class Game:
 
     def main(self):
         Game.init_glut()
-        self.init_app()
+        Game.init_app()
         Game.game_timer()
         glutMainLoop()
 
@@ -85,7 +78,8 @@ class Game:
         glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH | GLUT_MULTISAMPLE)
         glutInitWindowSize(Game.window_width, Game.window_height)
         glutInitWindowPosition(100, 100)
-        glutCreateWindow("OpenGL Coding Practice")
+
+        glutCreateWindow("OpenGL Coding ")
         glutDisplayFunc(Game.draw_frame)
         glutMouseFunc(Game.mouse_func)
         glutReshapeFunc(Game.reshape)
@@ -93,10 +87,31 @@ class Game:
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_MULTISAMPLE)
         glClearColor(1.0, 0.5, 0.50, 0.0)
+        glEnable(GL_DEBUG_OUTPUT)
+
+        version = glGetString(GL_VERSION)
+
+    @staticmethod
+    def init_app():
+        floor = Drawable("assets/box.obj", "assets/shader.vs.c", "assets/shader.fs.c")
+        floor.position = (0.0, -11.0)
+        floor.size = (7, 2)
+        Game.drawables.append(floor)
+
+        Game.physics_instance = Physics()
+        Game.create_new_punisher()
 
     @staticmethod
     def create_new_punisher():
-        pun = PhysicsBody("assets/punisher.obj")
+        pun = PhysicsBody("assets/punisher.obj", "assets/shader.vs.c", "assets/shader.fs.c")
         Game.drawables.append(pun)
         Game.updatebles.append(pun)
         return pun
+
+    @staticmethod
+    def read_error_log():
+        while glGetIntegerv(GL_DEBUG_LOGGED_MESSAGES) > 0:
+            length = glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH)
+            message_array = glGetDebugMessageLog(1, length)
+            message = str(message_array[2].tostring().replace(b'\x00', b''))
+            print(message)
