@@ -28,7 +28,6 @@ class Drawable:
 
         glUseProgram(self.shader.shader_program_handle)
 
-
         tex_id = 0
         for tex in self._textures:
             glActiveTexture(GL_TEXTURE0 + tex_id)

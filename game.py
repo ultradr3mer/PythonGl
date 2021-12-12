@@ -91,7 +91,7 @@ class Game:
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_MULTISAMPLE)
-        glClearColor(1.0, 0.5, 0.50, 0.0)
+        glClearColor(0.1, 0.1, 0.1, 0.0)
         glEnable(GL_DEBUG_OUTPUT)
 
         version = glGetString(GL_VERSION)
@@ -99,13 +99,15 @@ class Game:
     @staticmethod
     def init_app():
         Game.box_mesh = Mesh("assets/box.obj")
+        Game.floor_tex = Tex("assets/floor.dds")
         Game.punisher_mesh = Mesh("assets/punisher.obj")
         Game.punisher_tex = Tex("assets/punisher_texture.dds")
         Game.shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
 
         floor = Drawable(Game.box_mesh, Game.shader)
+        floor.add_tex(Game.floor_tex)
         floor.position = (0.0, -11.0)
-        floor.size = (7, 2)
+        floor.size = (10, 2)
         Game.drawables.append(floor)
 
         Game.physics_instance = Physics()
@@ -114,7 +116,7 @@ class Game:
     @staticmethod
     def create_new_punisher():
         pun = PhysicsBody(Game.punisher_mesh, Game.shader)
-        pun.color = (0.5, 0.5, 1.0, 1.0)
+        pun.add_tex(Game.punisher_tex)
         Game.drawables.append(pun)
         Game.updatebles.append(pun)
         return pun
