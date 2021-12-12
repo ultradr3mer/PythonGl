@@ -1,18 +1,12 @@
-import math
-
 import pymunk
-from OpenGL.GL import *
-from OpenGL.GLUT import *
-import numpy as np
 from pymunk import Poly
-
 import game
 from drawable import Drawable
 
 
 class PhysicsBody(Drawable):
-    def __init__(self, mesh_filename=None, shader_vert_filename=None, shader_frag_filename=None):
-        super().__init__(mesh_filename, shader_vert_filename, shader_frag_filename)
+    def __init__(self, mesh, shader):
+        super().__init__(mesh, shader)
 
         physics_instance = game.Game.physics_instance
 

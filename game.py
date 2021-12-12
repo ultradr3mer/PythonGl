@@ -3,11 +3,14 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.raw.GLU import gluPerspective
 
+from mesh import Mesh
 from physics_body import PhysicsBody
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
 import glm
+
+from shader import Shader
 
 
 class Game:
@@ -55,7 +58,8 @@ class Game:
         Game.window_width = width
         Game.window_height = height
 
-    def main(self):
+    @staticmethod
+    def main():
         Game.init_glut()
         Game.init_app()
         Game.game_timer()
@@ -79,7 +83,7 @@ class Game:
         glutInitWindowSize(Game.window_width, Game.window_height)
         glutInitWindowPosition(100, 100)
 
-        glutCreateWindow("OpenGL Coding ")
+        glutCreateWindow("Python Gl sandbox")
         glutDisplayFunc(Game.draw_frame)
         glutMouseFunc(Game.mouse_func)
         glutReshapeFunc(Game.reshape)
@@ -93,7 +97,11 @@ class Game:
 
     @staticmethod
     def init_app():
-        floor = Drawable("assets/box.obj", "assets/shader.vs.c", "assets/shader.fs.c")
+        Game.box_mesh = Mesh("assets/box.obj")
+        Game.punisher_mesh = Mesh("assets/punisher.obj")
+        Game.shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
+
+        floor = Drawable(Game.box_mesh, Game.shader)
         floor.position = (0.0, -11.0)
         floor.size = (7, 2)
         Game.drawables.append(floor)
@@ -103,7 +111,8 @@ class Game:
 
     @staticmethod
     def create_new_punisher():
-        pun = PhysicsBody("assets/punisher.obj", "assets/shader.vs.c", "assets/shader.fs.c")
+        pun = PhysicsBody(Game.punisher_mesh, Game.shader)
+        pun.color = (0.5, 0.5, 1.0, 1.0)
         Game.drawables.append(pun)
         Game.updatebles.append(pun)
         return pun
