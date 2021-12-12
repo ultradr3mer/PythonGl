@@ -1,9 +1,11 @@
 #version 330
 
-uniform vec4 in_color;
+in vec2 v_tex;
+
+uniform sampler2D diffuse_texture;
 
 out vec4 out_frag_color;
 
 void main() {
-	out_frag_color = in_color;
+	out_frag_color = texture(diffuse_texture,v_tex);
 }

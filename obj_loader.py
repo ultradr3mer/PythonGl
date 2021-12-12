@@ -8,6 +8,9 @@ class Obj:
         self.normals = []
         self.texcoords = []
         self.faces = []
+        self.plain_vertecies = []
+        self.plain_normals = []
+        self.plain_texcoords = []
 
         material = None
         with open(filename, "r") as file:
@@ -32,19 +35,22 @@ class Obj:
                         v[1] *= -1
                     self.normals.append(list(v))
                 elif values[0] == 'vt':
-                    self.texcoords.append(list(map(float, values[1:3])))
+                    t = list(map(float, values[1:3]))
+                    if flipy:
+                        t[1] = 1 - t[1]
+                    self.texcoords.append(t)
                 elif values[0] in ('usemtl', 'usemat'):
                     material = values[1]
                 elif values[0] == 'mtllib':
                     # self.mtl = MTL(values[1])
                     pass
                 elif values[0] == 'f':
-                    face = []
+                    vert = []
                     texcoords = []
                     norms = []
                     for v in values[1:]:
                         w = v.split('/')
-                        face.append(int(w[0]) - 1)
+                        vert.append(int(w[0]) - 1)
                         if len(w) >= 2 and len(w[1]) > 0:
                             texcoords.append(int(w[1]) - 1)
                         else:
@@ -53,32 +59,26 @@ class Obj:
                             norms.append(int(w[2]) - 1)
                         else:
                             norms.append(0)
-                    self.faces.append((face, norms, texcoords, material))
-
-    def get_vertecies(self):
-        result = list()
-
-        for v in self.vertices:
-            result.extend(v)
-
-        return result
-
-    def get_indices(self):
-        result = list()
+                    self.faces.append((vert, norms, texcoords, material))
 
         for f in self.faces:
-            result.extend(f[0])
+            face_indices = f[0]
+            vert = (self.vertices[face_indices[0]],
+                    self.vertices[face_indices[1]],
+                    self.vertices[face_indices[2]])
+            self.plain_vertecies.extend(vert)
 
-        return result
+            norm_indices = f[1]
+            norms = (self.normals[norm_indices[0]],
+                     self.normals[norm_indices[1]],
+                     self.normals[norm_indices[2]])
+            self.plain_normals.extend(vert)
 
-    def get_plain_vertecies(self) -> list[float]:
-        result = list()
-
-        for f in self.faces:
-            for v_index in f[0]:
-                result.extend(self.vertices[v_index])
-
-        return result
+            tex_indices = f[2]
+            tex = (self.texcoords[tex_indices[0]],
+                   self.texcoords[tex_indices[1]],
+                   self.texcoords[tex_indices[2]])
+            self.plain_texcoords.extend(tex)
 
     def get_pymunk_vertecies(self):
         result = list()
@@ -88,4 +88,3 @@ class Obj:
                 result.append(list(self.vertices[v_index][:2]))
 
         return result
-

@@ -150,11 +150,16 @@ def check_flags(val, fl):
 def dxt_size(w, h, dxt):
     w = max(1, w // 4)
     h = max(1, h // 4)
+    size = w * h
+    size *= dxt_block_size(dxt)
+    return size
+
+
+def dxt_block_size(dxt):
     if dxt == DDS_DXT1:
-        return w * h * 8
-    elif dxt in (DDS_DXT2, DDS_DXT3, DDS_DXT4, DDS_DXT5):
-        return w * h * 16
-    return -1
+        return 8
+
+    return 16
 
 
 class QueryDict(dict):
@@ -186,7 +191,7 @@ class DDSFile(object):
 
     def __init__(self, filename=None):
         super(DDSFile, self).__init__()
-        self._dxt = 0
+        self.dxt_id = 0
         self._fmt = None
         self.meta = meta = QueryDict()
         self.count = 0
@@ -298,7 +303,7 @@ class DDSFile(object):
         if len(images) < self.count:
             raise DDSException('Not enough images')
 
-        self._dxt = dxt
+        self.dxt_id = dxt
 
     def save(self, filename):
         if len(self.images) == 0:
@@ -406,12 +411,15 @@ class DDSFile(object):
     size = property(_get_size, _set_size)
 
     def _get_dxt(self):
-        return dxt_to_str(self._dxt)
+        return dxt_to_str(self.dxt_id)
 
     def _set_dxt(self, dxt):
-        self._dxt = str_to_dxt(dxt)
+        self.dxt_id = str_to_dxt(dxt)
 
     dxt = property(_get_dxt, _set_dxt)
+
+    def get_block_size(self):
+        return dxt_block_size(self.dxt)
 
 
 if __name__ == '__main__':

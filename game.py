@@ -11,6 +11,7 @@ from game_math import Rectangle
 import glm
 
 from shader import Shader
+from tex import Tex
 
 
 class Game:
@@ -99,6 +100,7 @@ class Game:
     def init_app():
         Game.box_mesh = Mesh("assets/box.obj")
         Game.punisher_mesh = Mesh("assets/punisher.obj")
+        Game.punisher_tex = Tex("assets/punisher_texture.dds")
         Game.shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
 
         floor = Drawable(Game.box_mesh, Game.shader)
