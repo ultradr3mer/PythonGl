@@ -9,7 +9,7 @@ class Physics:
 
         # ground
         ground = pymunk.Segment(self.space.static_body, a=(-10, -10), b=(10, -10), radius=1.0)
-        ground.friction = 0.62
+        ground.friction = 0.7
         self.space.add(ground)
 
     def run(self, step_size):

@@ -17,7 +17,7 @@ class PhysicsBody(Drawable):
         self.poly = Poly(self.body, vertices=self.mesh.obj.get_pymunk_vertecies())
 
         self.poly.mass = 10
-        self.poly.friction = 0.62
+        self.poly.friction = 0.7
         physics_instance.space.add(self.body, self.poly)
 
     def update(self):
