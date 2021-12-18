@@ -285,7 +285,7 @@ class DDSFile(object):
         images_size = self.images_size
         for i in range(self.count):
             if dxt in (0, 1, 2, 3):
-                size = align_value(block * w, 4) * h
+                size = align_value(block * w, block) * h
             else:
                 size = dxt_size(w, h, dxt)
             image, data = data[:size], data[size:]
@@ -422,19 +422,19 @@ class DDSFile(object):
         return dxt_block_size(self.dxt)
 
 
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) == 1:
-        print('Usage: python ddsfile.py <file1> <file2> ...')
-        sys.exit(0)
-    for filename in sys.argv[1:]:
-        print('=== Loading', filename)
-        try:
-            dds = DDSFile(filename=filename)
-            print(dds)
-            dds.save('bleh.dds')
-        except IOError as e:
-            print('ERR>', e)
-        except DDSException as e:
-            print('DDS>', e)
+# if __name__ == '__main__':
+#     import sys
+#
+#     if len(sys.argv) == 1:
+#         print('Usage: python ddsfile.py <file1> <file2> ...')
+#         sys.exit(0)
+#     for filename in sys.argv[1:]:
+#         print('=== Loading', filename)
+#         try:
+#             dds = DDSFile(filename=filename)
+#             print(dds)
+#             dds.save('bleh.dds')
+#         except IOError as e:
+#             print('ERR>', e)
+#         except DDSException as e:
+#             print('DDS>', e)

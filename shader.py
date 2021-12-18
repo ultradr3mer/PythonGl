@@ -7,9 +7,6 @@ from OpenGL.GLUT import *
 
 import game
 
-SIZE_OF_FLOAT32 = 4
-SIZE_OF_VEC3_FLOAT = 3 * SIZE_OF_FLOAT32
-
 
 class Shader:
     def __init__(self, vertex_file, fragment_file):

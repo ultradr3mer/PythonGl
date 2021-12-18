@@ -1,15 +1,19 @@
+import random
+
 import glfw
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.raw.GLU import gluPerspective
 
+from drawable_text import DrawableText
 from mesh import Mesh
 from physics_body import PhysicsBody
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
-import glm
+from glm import orthoLH_ZO
 
+from punisher import Punisher
 from shader import Shader
 from tex import Tex
 
@@ -29,6 +33,10 @@ class Game:
     q_pressed = False
     e_pressed = False
 
+    size = 0.7
+
+    counter = 0
+
     @staticmethod
     def draw_frame():
         glViewport(0, 0, Game.window_width, Game.window_height)
@@ -36,7 +44,7 @@ class Game:
 
         aspect = Game.window_width / Game.window_height
         area = Rectangle(-10 * aspect, 10 * aspect, -10, 10)
-        Game.projection_matrix = glm.orthoLH_ZO(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
+        Game.projection_matrix = orthoLH_ZO(area.left, area.right, area.bottom, area.top, 0.0, 1.0)
         Game.viewable_area = area
 
         for d in Game.drawables:
@@ -136,6 +144,7 @@ class Game:
         punisher_tex = Tex("assets/punisher_texture.dds")
         ghost_tex = Tex("assets/punisher_glow.dds")
         default_shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
+        numbers = Tex("assets/numbers.dds")
 
         floor = Drawable(box_mesh, default_shader)
         floor.add_tex(floor_tex)
@@ -144,6 +153,7 @@ class Game:
         Game.drawables.append(floor)
 
         ghost = Drawable(punisher_mesh, default_shader)
+        ghost.size = (Game.size, Game.size)
         ghost.add_tex(ghost_tex)
         Game.drawables.append(ghost)
         Game.ghost = ghost
@@ -154,12 +164,20 @@ class Game:
         Game.physics_instance = Physics()
         Game.create_new_punisher()
 
+        shape = DrawableText(default_shader, "1234")
+        # shape.size = (-1.0, 1.0)
+        shape.add_tex(numbers)
+        Game.drawables.append(shape)
+
     @staticmethod
     def create_new_punisher():
-        pun = PhysicsBody(Game.punisher_mesh, Game.default_shader)
+        pun = Punisher(Game.punisher_mesh, Game.default_shader, Game.size)
+        Game.ghost.size = (Game.size, Game.size)
         pun.add_tex(Game.punisher_tex)
         Game.drawables.append(pun)
         Game.updatebles.append(pun)
+        Game.counter += 1
+        print(Game.counter)
         return pun
 
     @staticmethod
