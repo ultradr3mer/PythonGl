@@ -2,6 +2,26 @@ from drawable import Drawable
 from generated_mesh import GenMesh
 
 
+def generate_character_map():
+    characters = ' !"#$%&()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~'
+    line_length = 12
+
+    result = dict()
+
+    line_number = 0
+    while len(characters) > 0:
+        line, characters = characters[:line_length], characters[line_length:]
+
+        character_number = 0
+        for c in line:
+            result[c] = (character_number, line_number)
+            character_number += 1
+
+        line_number += 1
+
+    return result
+
+
 class DrawableText(Drawable):
     base_verts = [[1.0, 0.0],
                   [0.0, 1.0],
@@ -17,33 +37,22 @@ class DrawableText(Drawable):
                        [0.9999, 0.0001],
                        [0.0001, 0.0001]]
 
-    character_map = {
-        '1': (0, 0),
-        '2': (1, 0),
-        '3': (2, 0),
-        '4': (3, 0),
-        '5': (4, 0),
-        '6': (5, 0),
-        '7': (6, 0),
-        '8': (7, 0),
-        '9': (8, 0),
-        '0': (9, 0)
-    }
+    character_map = generate_character_map()
 
     def __init__(self, shader, text=""):
         self.mesh = GenMesh()
-        self.generate_mesh(text)
+        self.set_text(text)
         super(DrawableText, self).__init__(self.mesh, shader)
 
-    def generate_mesh(self, text):
+    def set_text(self, text):
         verts = list()
         tex_coords = list()
 
         x_pos = 0
         for current_character in text:
-            verts.extend(self.transform_vec3(self.base_verts, pos=(x_pos, 0), size=(24.0 / 32.0, 1.0)))
+            verts.extend(self.transform_vec3(self.base_verts, pos=(x_pos, 0), size=(36.0 / 64.0, 1.0)))
             tex_coords.extend(self.transform_vec2(self.base_tex_coords,
-                                                  size=(24.0 / 256.0, 32.0 / 256.0),
+                                                  size=(36.0 / 512.0, 64.0 / 512.0),
                                                   pos=self.character_map[current_character]))
             x_pos += 1
 

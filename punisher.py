@@ -11,7 +11,7 @@ class Punisher(PhysicsBody):
     def update(self):
         super().update()
         if self.position.y < -10 and self.above:
-            game.Game.counter -= 1
-            print(game.Game.counter)
+            game.Game.score_counter -= 1
+            game.Game.update_score()
             self.above = False
 

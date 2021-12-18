@@ -35,7 +35,9 @@ class Game:
 
     size = 0.7
 
-    counter = 0
+    score_counter = 0
+
+    score_text: DrawableText = None
 
     @staticmethod
     def draw_frame():
@@ -158,16 +160,19 @@ class Game:
         Game.drawables.append(ghost)
         Game.ghost = ghost
 
+        score_text = DrawableText(default_shader, "Anzahl")
+        score_text.position = (-9, 8)
+        score_text.size = (2, 2)
+        # shape.size = (-1.0, 1.0)
+        score_text.add_tex(numbers)
+        Game.drawables.append(score_text)
+        Game.score_text = score_text
+
         Game.punisher_mesh = punisher_mesh
         Game.default_shader = default_shader
         Game.punisher_tex = punisher_tex
         Game.physics_instance = Physics()
         Game.create_new_punisher()
-
-        shape = DrawableText(default_shader, "1234")
-        # shape.size = (-1.0, 1.0)
-        shape.add_tex(numbers)
-        Game.drawables.append(shape)
 
     @staticmethod
     def create_new_punisher():
@@ -176,8 +181,8 @@ class Game:
         pun.add_tex(Game.punisher_tex)
         Game.drawables.append(pun)
         Game.updatebles.append(pun)
-        Game.counter += 1
-        print(Game.counter)
+        Game.score_counter += 1
+        Game.update_score()
         return pun
 
     @staticmethod
@@ -192,3 +197,7 @@ class Game:
     def world_pos_from_screen(x, y):
         screen_area = Rectangle(0, Game.window_width, Game.window_height, 0)
         return Game.viewable_area.project(screen_area, (x, y))
+
+    @staticmethod
+    def update_score():
+        Game.score_text.set_text(f"Anzahl: {Game.score_counter}")
