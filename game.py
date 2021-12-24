@@ -15,16 +15,26 @@ from shader import Shader
 from tex import Tex
 
 
+class PillTemplate:
+    def __init__(self, mesh, tex, ghost, size):
+        self.mesh = mesh
+        self.tex = tex
+        self.ghost = ghost
+        self.size = size
+
+        self.ghost.size = (size, size)
+
+
 class Game:
     default_shader = None
     window_width, window_height = 640, 480
     fps = 60
     physics_instance: Physics = None
     drawables: list[Drawable] = list()
-    templates: list["PillTemplate"] = list()
+    templates: list[PillTemplate] = list()
     updatebles = list()
     viewable_area = Rectangle(0, 0, 0, 0)
-    current_template: "PillTemplate" = None
+    current_template: PillTemplate = None
 
     q_pressed = False
     e_pressed = False
@@ -239,13 +249,3 @@ class Game:
         template.ghost.angle = angle
         Game.current_template = template
         pass
-
-
-class PillTemplate:
-    def __init__(self, mesh, tex, ghost, size):
-        self.mesh = mesh
-        self.tex = tex
-        self.ghost = ghost
-        self.size = size
-
-        self.ghost.size = (size, size)
