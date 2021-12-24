@@ -57,15 +57,32 @@ class Game:
 
     @staticmethod
     def mouse_func(button, state, x, y):
+        instance = Game.physics_instance
+
         if button == 0 and state == 0:
+            pos = Game.world_pos_from_screen(x, y)
+            body = instance.find_object(pos)
+            if body:
+                instance.start_grab(body, pos)
+                return
             pun = Game.create_new_punisher()
-            pun.position = Game.world_pos_from_screen(x, y)
+            pun.position = pos
             pun.angle = Game.ghost.angle
             Game.drawables.append(pun)
+            return
+        elif button == 0 and state == 1:
+            instance.end_grab()
+
 
     @staticmethod
     def passive_motion(x, y):
         Game.ghost.position = Game.world_pos_from_screen(x, y)
+
+    @staticmethod
+    def motion_func(x, y):
+        instance = Game.physics_instance
+        pos = Game.world_pos_from_screen(x, y)
+        instance.update_grab(pos)
 
     @staticmethod
     def reshape(width, height):
@@ -122,6 +139,7 @@ class Game:
         glutMouseFunc(Game.mouse_func)
         glutReshapeFunc(Game.reshape)
         glutPassiveMotionFunc(Game.passive_motion)
+        glutMotionFunc(Game.motion_func)
         glutKeyboardUpFunc(Game.key_up_function)
         glutKeyboardFunc(Game.key_function)
         glEnable(GL_POLYGON_SMOOTH)
@@ -160,6 +178,7 @@ class Game:
         score_text.size = (1, 1)
         # shape.size = (-1.0, 1.0)
         score_text.add_tex(numbers)
+        score_text.color = (0.3, 0.7, 1.0, 1.0)
         Game.drawables.append(score_text)
         Game.score_text = score_text
 
