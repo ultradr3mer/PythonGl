@@ -1,6 +1,3 @@
-from OpenGL.GL import *
-
-
 class Obj:
     def __init__(self, filename, swapyz=True, flipy=True):
         """Loads a Wavefront OBJ file. """

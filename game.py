@@ -1,13 +1,7 @@
-import random
-
-import glfw
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-from OpenGL.raw.GLU import gluPerspective
-
 from drawable_text import DrawableText
 from mesh import Mesh
-from physics_body import PhysicsBody
 from physics import Physics
 from drawable import Drawable
 from game_math import Rectangle
@@ -65,8 +59,8 @@ class Game:
     def mouse_func(button, state, x, y):
         if button == 0 and state == 0:
             pun = Game.create_new_punisher()
-            pun.body.position = Game.world_pos_from_screen(x, y)
-            pun.body.angle = Game.ghost.angle
+            pun.position = Game.world_pos_from_screen(x, y)
+            pun.angle = Game.ghost.angle
             Game.drawables.append(pun)
 
     @staticmethod
@@ -96,7 +90,7 @@ class Game:
 
         glutTimerFunc(msecs, lambda v: Game.game_timer(), 5)
 
-        rotation_speed = 0.02
+        rotation_speed = 0.04
         if Game.q_pressed:
             Game.ghost.angle += rotation_speed
         if Game.e_pressed:
@@ -146,6 +140,7 @@ class Game:
         punisher_tex = Tex("assets/punisher_texture.dds")
         ghost_tex = Tex("assets/punisher_glow.dds")
         default_shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
+        font_shader = Shader("assets/font_shader.vs.c", "assets/font_shader.fs.c")
         numbers = Tex("assets/numbers.dds")
 
         floor = Drawable(box_mesh, default_shader)
@@ -160,9 +155,9 @@ class Game:
         Game.drawables.append(ghost)
         Game.ghost = ghost
 
-        score_text = DrawableText(default_shader, "Anzahl")
+        score_text = DrawableText(font_shader, "Anzahl")
         score_text.position = (-9, 8)
-        score_text.size = (2, 2)
+        score_text.size = (1, 1)
         # shape.size = (-1.0, 1.0)
         score_text.add_tex(numbers)
         Game.drawables.append(score_text)

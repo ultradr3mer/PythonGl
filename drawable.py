@@ -7,10 +7,10 @@ from tex import Tex
 
 class Drawable:
     def __init__(self, mesh, shader):
-        self.position = (0, 0, 0)
+        self._position = (0, 0, 0)
         self.size = (1, 1)
-        self.angle = 0
-        self.color = (0.5, 0.5, 0.5, 1.0)
+        self._angle = 0
+        self.color = (1.0, 1.0, 1.0, 1.0)
         self.verticeBufferId = 0
         self.mesh = mesh
         self.shader = shader
@@ -20,6 +20,22 @@ class Drawable:
         self.vertex_attribute_object = self.shader.create_vertex_attribute_object(self.mesh)
 
         self._textures: list[Tex] = list()
+
+    @property
+    def angle(self):
+        return self._angle
+
+    @angle.setter
+    def angle(self, value):
+        self._angle = value
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        self._position = value
 
     def draw(self):
         self.modelview_matrix = glm.translate(glm.vec3(self.position[0], self.position[1], 0.0))
@@ -38,7 +54,7 @@ class Drawable:
 
         self.shader.insert_uniform("projection_matrix", game.Game.projection_matrix)
         self.shader.insert_uniform("modelview_matrix", self.modelview_matrix)
-        self.shader.insert_uniform("in_color", self.color)
+        self.shader.insert_uniform("color", self.color)
 
         glDrawArrays(GL_TRIANGLES, 0, self.mesh.length)
         glBindVertexArray(0)

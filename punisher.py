@@ -9,7 +9,6 @@ class Punisher(PhysicsBody):
         pass
 
     def update(self):
-        super().update()
         if self.position.y < -10 and self.above:
             game.Game.score_counter -= 1
             game.Game.update_score()

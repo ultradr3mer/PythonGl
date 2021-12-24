@@ -1,10 +1,6 @@
-from typing import Tuple
-
 import glm
-import numpy as np
 from OpenGL.GL import *
 from OpenGL.GLUT import *
-
 import game
 
 

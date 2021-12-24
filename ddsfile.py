@@ -285,7 +285,7 @@ class DDSFile(object):
         images_size = self.images_size
         for i in range(self.count):
             if dxt in (0, 1, 2, 3):
-                size = align_value(block * w, block) * h
+                size = block * w * h
             else:
                 size = dxt_size(w, h, dxt)
             image, data = data[:size], data[size:]

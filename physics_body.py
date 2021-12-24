@@ -23,6 +23,18 @@ class PhysicsBody(Drawable):
 
         self.size = (scale, scale)
 
-    def update(self):
-        self.position = self.body.position
-        self.angle = self.body.angle
+    @property
+    def position(self):
+        return self.body.position
+
+    @position.setter
+    def position(self, value):
+        self.body.position = value
+
+    @property
+    def angle(self):
+        return self.body.angle
+
+    @angle.setter
+    def angle(self, value):
+        self.body.angle = value

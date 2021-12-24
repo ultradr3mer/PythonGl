@@ -1,7 +1,7 @@
 import numpy as np
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from obj_loader import Obj
+
 
 class Mesh:
     def __init__(self, filename):
