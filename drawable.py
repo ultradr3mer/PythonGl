@@ -16,10 +16,9 @@ class Drawable:
         self.shader = shader
         self.vertex_attribute_object = 0
         self.modelview_matrix: glm.mat4 = None
-
         self.vertex_attribute_object = self.shader.create_vertex_attribute_object(self.mesh)
-
         self._textures: list[Tex] = list()
+        self.visible = True
 
     @property
     def angle(self):
@@ -38,6 +37,9 @@ class Drawable:
         self._position = value
 
     def draw(self):
+        if not self.visible:
+            return
+
         self.modelview_matrix = glm.translate(glm.vec3(self.position[0], self.position[1], 0.0))
         self.modelview_matrix = glm.scale(self.modelview_matrix, glm.vec3(self.size[0], self.size[1], 1))
         self.modelview_matrix = glm.rotate(self.modelview_matrix, self.angle, glm.vec3(0.0, 0.0, 1.0))

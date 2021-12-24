@@ -1,3 +1,6 @@
+import math
+import random
+
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from drawable_text import DrawableText
@@ -14,15 +17,14 @@ from tex import Tex
 
 class Game:
     default_shader = None
-    punisher_tex = None
-    punisher_mesh = None
     window_width, window_height = 640, 480
     fps = 60
     physics_instance: Physics = None
     drawables: list[Drawable] = list()
+    templates: list["PillTemplate"] = list()
     updatebles = list()
     viewable_area = Rectangle(0, 0, 0, 0)
-    ghost: Drawable = None
+    current_template: "PillTemplate" = None
 
     q_pressed = False
     e_pressed = False
@@ -58,25 +60,22 @@ class Game:
     @staticmethod
     def mouse_func(button, state, x, y):
         instance = Game.physics_instance
-
         if button == 0 and state == 0:
             pos = Game.world_pos_from_screen(x, y)
             body = instance.find_object(pos)
             if body:
                 instance.start_grab(body, pos)
                 return
-            pun = Game.create_new_punisher()
-            pun.position = pos
-            pun.angle = Game.ghost.angle
-            Game.drawables.append(pun)
+            pill = Game.create_new_pill()
+            pill.position = pos
+            Game.drawables.append(pill)
             return
         elif button == 0 and state == 1:
             instance.end_grab()
 
-
     @staticmethod
     def passive_motion(x, y):
-        Game.ghost.position = Game.world_pos_from_screen(x, y)
+        Game.current_template.ghost.position = Game.world_pos_from_screen(x, y)
 
     @staticmethod
     def motion_func(x, y):
@@ -109,9 +108,9 @@ class Game:
 
         rotation_speed = 0.04
         if Game.q_pressed:
-            Game.ghost.angle += rotation_speed
+            Game.current_template.ghost.angle += rotation_speed
         if Game.e_pressed:
-            Game.ghost.angle -= rotation_speed
+            Game.current_template.ghost.angle -= rotation_speed
 
     @staticmethod
     def key_function(uchar, x, y):
@@ -156,10 +155,13 @@ class Game:
         floor_tex = Tex("assets/floor.dds")
         punisher_mesh = Mesh("assets/punisher.obj")
         punisher_tex = Tex("assets/punisher_texture.dds")
-        ghost_tex = Tex("assets/punisher_glow.dds")
+        punisher_ghost_tex = Tex("assets/punisher_glow.dds")
         default_shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
         font_shader = Shader("assets/font_shader.vs.c", "assets/font_shader.fs.c")
         numbers = Tex("assets/numbers.dds")
+        plein_mesh = Mesh("assets/philipp_plein.obj")
+        plein_tex = Tex("assets/philipp_plein.dds")
+        plein_ghost_tex = Tex("assets/philipp_plein_glow.dds")
 
         floor = Drawable(box_mesh, default_shader)
         floor.add_tex(floor_tex)
@@ -167,37 +169,45 @@ class Game:
         floor.size = (10, 2)
         Game.drawables.append(floor)
 
-        ghost = Drawable(punisher_mesh, default_shader)
-        ghost.size = (Game.size, Game.size)
-        ghost.add_tex(ghost_tex)
-        Game.drawables.append(ghost)
-        Game.ghost = ghost
+        punisher_ghost = Drawable(punisher_mesh, default_shader)
+        punisher_ghost.visible = False
+        punisher_ghost.size = (Game.size, Game.size)
+        punisher_ghost.add_tex(punisher_ghost_tex)
+        Game.drawables.append(punisher_ghost)
+        Game.templates.append(PillTemplate(punisher_mesh, punisher_tex, punisher_ghost, 0.75))
+
+        plein_ghost = Drawable(plein_mesh, default_shader)
+        plein_ghost.visible = False
+        plein_ghost.size = (Game.size, Game.size)
+        plein_ghost.add_tex(plein_ghost_tex)
+        Game.drawables.append(plein_ghost)
+        Game.templates.append(PillTemplate(plein_mesh, plein_tex, plein_ghost, 0.6))
 
         score_text = DrawableText(font_shader, "Anzahl")
         score_text.position = (-9, 8)
         score_text.size = (1, 1)
-        # shape.size = (-1.0, 1.0)
         score_text.add_tex(numbers)
         score_text.color = (0.3, 0.7, 1.0, 1.0)
         Game.drawables.append(score_text)
         Game.score_text = score_text
 
-        Game.punisher_mesh = punisher_mesh
         Game.default_shader = default_shader
-        Game.punisher_tex = punisher_tex
         Game.physics_instance = Physics()
-        Game.create_new_punisher()
+        Game.randomize_next_pill()
+        Game.create_new_pill()
 
     @staticmethod
-    def create_new_punisher():
-        pun = Punisher(Game.punisher_mesh, Game.default_shader, Game.size)
-        Game.ghost.size = (Game.size, Game.size)
-        pun.add_tex(Game.punisher_tex)
-        Game.drawables.append(pun)
-        Game.updatebles.append(pun)
+    def create_new_pill():
+        template = Game.current_template
+        pill = Punisher(template.mesh, Game.default_shader, template.size)
+        pill.add_tex(template.tex)
+        pill.angle = template.ghost.angle
+        Game.drawables.append(pill)
+        Game.updatebles.append(pill)
         Game.score_counter += 1
         Game.update_score()
-        return pun
+        Game.randomize_next_pill()
+        return pill
 
     @staticmethod
     def read_error_log():
@@ -215,3 +225,27 @@ class Game:
     @staticmethod
     def update_score():
         Game.score_text.set_text(f"Anzahl: {Game.score_counter}")
+
+    @staticmethod
+    def randomize_next_pill():
+        template = Game.current_template
+        if template:
+            Game.current_template.ghost.visible = False
+            angle = template.ghost.angle
+        else:
+            angle = random.randrange(0, 100) / 100 * math.pi * 2.0
+        template = Game.templates[random.randrange(0, len(Game.templates))]
+        template.ghost.visible = True
+        template.ghost.angle = angle
+        Game.current_template = template
+        pass
+
+
+class PillTemplate:
+    def __init__(self, mesh, tex, ghost, size):
+        self.mesh = mesh
+        self.tex = tex
+        self.ghost = ghost
+        self.size = size
+
+        self.ghost.size = (size, size)
