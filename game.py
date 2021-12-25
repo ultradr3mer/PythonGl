@@ -1,8 +1,9 @@
 import math
 import random
 
-from OpenGL.GL import *
+import OpenGL.GL as gl
 from OpenGL.GLUT import *
+
 from drawable_text import DrawableText
 from mesh import Mesh
 from physics import Physics
@@ -39,16 +40,14 @@ class Game:
     q_pressed = False
     e_pressed = False
 
-    size = 0.7
-
     score_counter = 0
 
     score_text: DrawableText = None
 
     @staticmethod
     def draw_frame():
-        glViewport(0, 0, Game.window_width, Game.window_height)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+        gl.glViewport(0, 0, Game.window_width, Game.window_height)
+        gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         aspect = Game.window_width / Game.window_height
         area = Rectangle(-10 * aspect, 10 * aspect, -10, 10)
@@ -58,12 +57,12 @@ class Game:
         for d in Game.drawables:
             d.draw()
 
-        error_code = glGetError()
+        error_code = gl.glGetError()
         if error_code != 0:
             print(error_code)
 
-        glFlush()
-        glFinish()
+        gl.glFlush()
+        gl.glFinish()
         glutSwapBuffers()
         Game.read_error_log()
 
@@ -151,21 +150,24 @@ class Game:
         glutMotionFunc(Game.motion_func)
         glutKeyboardUpFunc(Game.key_up_function)
         glutKeyboardFunc(Game.key_function)
-        glEnable(GL_POLYGON_SMOOTH)
-        glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
-        glEnable(GL_MULTISAMPLE)
-        glClearColor(0.1, 0.1, 0.1, 0.0)
-        glEnable(GL_DEBUG_OUTPUT)
-        glEnable(GL_BLEND)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        gl.glEnable(gl.GL_POLYGON_SMOOTH)
+        gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST)
+        gl.glEnable(gl.GL_MULTISAMPLE)
+        gl.glClearColor(0.1, 0.1, 0.1, 0.0)
+        gl.glEnable(gl.GL_DEBUG_OUTPUT)
+        gl.glEnable(gl.GL_BLEND)
+        gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
     @staticmethod
     def init_app():
+        Game.physics_instance = Physics()
+
         box_mesh = Mesh("assets/box.obj")
         floor_tex = Tex("assets/floor.dds")
         default_shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
         font_shader = Shader("assets/font_shader.vs.c", "assets/font_shader.fs.c")
         numbers = Tex("assets/numbers.dds")
+        Game.default_shader = default_shader
 
         floor = Drawable(box_mesh, default_shader)
         floor.add_tex(floor_tex)
@@ -173,35 +175,18 @@ class Game:
         floor.size = (10, 2)
         Game.drawables.append(floor)
 
-        punisher_mesh = Mesh("assets/punisher.obj")
-        punisher_tex = Tex("assets/punisher_texture.dds")
-        punisher_ghost_tex = Tex("assets/punisher_glow.dds")
-        punisher_ghost = Drawable(punisher_mesh, default_shader)
-        punisher_ghost.visible = False
-        punisher_ghost.size = (Game.size, Game.size)
-        punisher_ghost.add_tex(punisher_ghost_tex)
-        Game.drawables.append(punisher_ghost)
-        Game.templates.append(PillTemplate(punisher_mesh, punisher_tex, punisher_ghost, 0.75))
-
-        plein_mesh = Mesh("assets/philipp_plein.obj")
-        plein_tex = Tex("assets/philipp_plein.dds")
-        plein_ghost_tex = Tex("assets/philipp_plein_glow.dds")
-        plein_ghost = Drawable(plein_mesh, default_shader)
-        plein_ghost.visible = False
-        plein_ghost.size = (Game.size, Game.size)
-        plein_ghost.add_tex(plein_ghost_tex)
-        Game.drawables.append(plein_ghost)
-        Game.templates.append(PillTemplate(plein_mesh, plein_tex, plein_ghost, 0.6))
-
-        mesh = Mesh("assets/tesla.obj")
-        tex = Tex("assets/tesla.dds")
-        ghost_tex = Tex("assets/tesla_ghost.dds")
-        ghost = Drawable(mesh, default_shader)
-        ghost.visible = False
-        ghost.size = (Game.size, Game.size)
-        ghost.add_tex(ghost_tex)
-        Game.drawables.append(ghost)
-        Game.templates.append(PillTemplate(mesh, tex, ghost, 0.6))
+        Game.generate_pill_template(mesh_filename="assets/punisher.obj",
+                                    tex_filename="assets/punisher_texture.dds",
+                                    ghost_tex_filename="assets/punisher_glow.dds",
+                                    size=0.75)
+        Game.generate_pill_template(mesh_filename="assets/philipp_plein.obj",
+                                    tex_filename="assets/philipp_plein.dds",
+                                    ghost_tex_filename="assets/philipp_plein_glow.dds",
+                                    size=0.6)
+        Game.generate_pill_template(mesh_filename="assets/tesla.obj",
+                                    tex_filename="assets/tesla.dds",
+                                    ghost_tex_filename="assets/tesla_ghost.dds",
+                                    size=0.6)
 
         score_text = DrawableText(font_shader, "Anzahl")
         score_text.position = (-9, 8)
@@ -211,8 +196,6 @@ class Game:
         Game.drawables.append(score_text)
         Game.score_text = score_text
 
-        Game.default_shader = default_shader
-        Game.physics_instance = Physics()
         Game.randomize_next_pill()
         Game.create_new_pill()
 
@@ -231,9 +214,9 @@ class Game:
 
     @staticmethod
     def read_error_log():
-        while glGetIntegerv(GL_DEBUG_LOGGED_MESSAGES) > 0:
-            length = glGetIntegerv(GL_MAX_DEBUG_MESSAGE_LENGTH)
-            message_array = glGetDebugMessageLog(1, length)
+        while gl.glGetIntegerv(gl.GL_DEBUG_LOGGED_MESSAGES) > 0:
+            length = gl.glGetIntegerv(gl.GL_MAX_DEBUG_MESSAGE_LENGTH)
+            message_array = gl.glGetDebugMessageLog(1, length)
             message = str(message_array[2].tostring().replace(b'\x00', b''))
             print(message)
 
@@ -251,11 +234,22 @@ class Game:
         template = Game.current_template
         if template:
             Game.current_template.ghost.visible = False
-            angle = template.ghost.angle
-        else:
-            angle = random.randrange(0, 100) / 100 * math.pi * 2.0
         template = Game.templates[random.randrange(0, len(Game.templates))]
         template.ghost.visible = True
+        angle = random.randrange(0, 100) / 100 * math.pi * 2.0
         template.ghost.angle = angle
         Game.current_template = template
+        pass
+
+    @staticmethod
+    def generate_pill_template(mesh_filename, tex_filename, ghost_tex_filename, size):
+        mesh = Mesh(mesh_filename)
+        tex = Tex(tex_filename)
+        ghost_tex = Tex(ghost_tex_filename)
+        ghost = Drawable(mesh, Game.default_shader)
+        ghost.visible = False
+        ghost.size = (size, size)
+        ghost.add_tex(ghost_tex)
+        Game.drawables.append(ghost)
+        Game.templates.append(PillTemplate(mesh, tex, ghost, size))
         pass
