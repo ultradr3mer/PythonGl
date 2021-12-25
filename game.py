@@ -163,15 +163,9 @@ class Game:
     def init_app():
         box_mesh = Mesh("assets/box.obj")
         floor_tex = Tex("assets/floor.dds")
-        punisher_mesh = Mesh("assets/punisher.obj")
-        punisher_tex = Tex("assets/punisher_texture.dds")
-        punisher_ghost_tex = Tex("assets/punisher_glow.dds")
         default_shader = Shader("assets/shader.vs.c", "assets/shader.fs.c")
         font_shader = Shader("assets/font_shader.vs.c", "assets/font_shader.fs.c")
         numbers = Tex("assets/numbers.dds")
-        plein_mesh = Mesh("assets/philipp_plein.obj")
-        plein_tex = Tex("assets/philipp_plein.dds")
-        plein_ghost_tex = Tex("assets/philipp_plein_glow.dds")
 
         floor = Drawable(box_mesh, default_shader)
         floor.add_tex(floor_tex)
@@ -179,6 +173,9 @@ class Game:
         floor.size = (10, 2)
         Game.drawables.append(floor)
 
+        punisher_mesh = Mesh("assets/punisher.obj")
+        punisher_tex = Tex("assets/punisher_texture.dds")
+        punisher_ghost_tex = Tex("assets/punisher_glow.dds")
         punisher_ghost = Drawable(punisher_mesh, default_shader)
         punisher_ghost.visible = False
         punisher_ghost.size = (Game.size, Game.size)
@@ -186,12 +183,25 @@ class Game:
         Game.drawables.append(punisher_ghost)
         Game.templates.append(PillTemplate(punisher_mesh, punisher_tex, punisher_ghost, 0.75))
 
+        plein_mesh = Mesh("assets/philipp_plein.obj")
+        plein_tex = Tex("assets/philipp_plein.dds")
+        plein_ghost_tex = Tex("assets/philipp_plein_glow.dds")
         plein_ghost = Drawable(plein_mesh, default_shader)
         plein_ghost.visible = False
         plein_ghost.size = (Game.size, Game.size)
         plein_ghost.add_tex(plein_ghost_tex)
         Game.drawables.append(plein_ghost)
         Game.templates.append(PillTemplate(plein_mesh, plein_tex, plein_ghost, 0.6))
+
+        mesh = Mesh("assets/tesla.obj")
+        tex = Tex("assets/tesla.dds")
+        ghost_tex = Tex("assets/tesla_ghost.dds")
+        ghost = Drawable(mesh, default_shader)
+        ghost.visible = False
+        ghost.size = (Game.size, Game.size)
+        ghost.add_tex(ghost_tex)
+        Game.drawables.append(ghost)
+        Game.templates.append(PillTemplate(mesh, tex, ghost, 0.6))
 
         score_text = DrawableText(font_shader, "Anzahl")
         score_text.position = (-9, 8)
